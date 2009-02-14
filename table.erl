@@ -1,7 +1,21 @@
 -module(table).
 -behaviour(gen_fsm).
 
--compile(export_all).
+-export([init/1,
+         handle_event/3,
+         terminate/3,
+         handle_info/3,
+         handle_sync_event/4,
+         code_change/4]).
+-export([
+  start/0,
+  stop/0,
+  join/1,
+  quit/1,
+  players/0,
+  waiting/3,
+  playing/3,
+  playing/2]).
 
 start() ->
 	gen_fsm:start({local, ?MODULE}, ?MODULE, [], []).
@@ -49,7 +63,7 @@ playing(terminate_game, {GamePid, Players}) ->
 	game_21:stop(GamePid),
 	{ok, Pid} = game_21:start(Players),
 	{next_state, playing, {Pid, Players}};
-playing(timeout, {GamePid, Players}) ->
+playing(timeout, {_GamePid, Players}) ->
 	{ok, Pid} = game_21:start(Players),
 	{next_state, playing, {Pid, Players}}.
 
@@ -59,8 +73,14 @@ handle_sync_event(players, _From, StateName, {GamePid, Players}) ->
 handle_event(stop, _StateName, StateData) ->
 	{stop, normal, StateData}.
 
+handle_info(_Info, StateName, State) ->
+  {ok, StateName, State}.
+
 terminate(normal, _StateName, _StateData) ->
 	ok;
 terminate(Reason, _StateName, _StateData) ->
 	io:format("Abnormal shutdown.  Reason: ~p~n", [Reason]),
 	ok.
+
+code_change(_Vsn, StateName, State, _Extra) ->
+  {ok, StateName, State}.
