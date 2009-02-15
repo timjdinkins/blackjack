@@ -15,7 +15,5 @@ score_21(S, [H|Cs]) ->
 		false ->
 			score_21([H|S], Cs)
 	end;
-score_21(S, [H|Cs]) ->
-	score_21([H|S], Cs);
 score_21(S, []) ->
 	lists:sum(S).

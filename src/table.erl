@@ -8,7 +8,7 @@
          handle_sync_event/4,
          code_change/4]).
 -export([
-  start/0,
+  start_link/0,
   stop/0,
   join/1,
   quit/1,
@@ -17,8 +17,8 @@
   playing/3,
   playing/2]).
 
-start() ->
-	gen_fsm:start({local, ?MODULE}, ?MODULE, [], []).
+start_link() ->
+	gen_fsm:start_link({local, ?MODULE}, ?MODULE, [], []).
 
 stop() ->
 	gen_fsm:send_all_state_event(?MODULE, stop).
@@ -61,10 +61,10 @@ playing({quit, Pid}, _From, {GamePid, Players}) ->
 
 playing(terminate_game, {GamePid, Players}) ->
 	game_21:stop(GamePid),
-	{ok, Pid} = game_21:start(Players),
+	{ok, Pid} = game_21:start_link(Players),
 	{next_state, playing, {Pid, Players}};
 playing(timeout, {_GamePid, Players}) ->
-	{ok, Pid} = game_21:start(Players),
+	{ok, Pid} = game_21:start_link(Players),
 	{next_state, playing, {Pid, Players}}.
 
 handle_sync_event(players, _From, StateName, {GamePid, Players}) ->

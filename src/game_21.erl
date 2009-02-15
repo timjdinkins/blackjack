@@ -8,7 +8,7 @@
          handle_sync_event/4,
          code_change/4]).
 -export([
-  start/1,
+  start_link/1,
   stop/1,
   betting/2,
   receiving_bets/2,
@@ -20,15 +20,16 @@
   waiting_to_die/2
   ]).
 
-start(Players) ->
-	gen_fsm:start(?MODULE, [], {Players, deck:start()}).
+start_link(Players) ->
+	gen_fsm:start_link(?MODULE, [], Players).
 
 stop(Pid) ->
 	gen_fsm:send_all_state_event(Pid, stop).
 
-init({Ps, DeckPid}) ->
+init(Ps) ->
 	Players = dict:from_list([{P, {0, []}} || P <- Ps]),
-	{ok, betting, {Players, DeckPid}, 0}.
+	%gen_fsm:send_event_after(1000, announce),
+	{ok, betting, {Players, deck:start()}, 0}.
 
 betting(timeout, {Players, DeckPid}) ->
 	lists:foreach(fun({P, _V}) -> player:place_bet(P, self()) end, dict:to_list(Players)),
