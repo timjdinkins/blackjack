@@ -9,7 +9,7 @@
          terminate/2,
          code_change/3]).
 -export([start_link/0, stop/1]).
--export([join_table/1, bet/2, cards/2]).
+-export([join_table/1, bet/2, cards/2, place_bet/2]).
 
 
 start_link() ->
@@ -25,6 +25,9 @@ join_table(Pid) ->
 bet(Pid, Amount) ->
 	gen_server:cast(Pid, {bet, Amount}).
 
+place_bet(Pid, GamePid) ->
+  gen_server:cast(Pid, {place_bet, GamePid}).
+
 cards(Pid, Cards) ->
 	gen_server:cast(Pid, {cards, Cards}).
 
@@ -38,7 +41,8 @@ handle_cast(join, GamePid) ->
 	table:join(self()),
 	{noreply, GamePid};
 
-handle_cast({game_pid, Pid}, _GamePid) ->
+handle_cast({place_bet, Pid}, _GamePid) ->
+  io:format("Place your bet.~n"),
   {noreply, Pid};
 
 handle_cast({bet, Amount}, GamePid) ->
@@ -50,7 +54,11 @@ handle_cast({cards, Cards}, GamePid) ->
 	{noreply, GamePid};
 
 handle_cast(stop, State) ->
-	{stop, normal, State}.
+	{stop, normal, State};
+
+handle_cast(Any, State) ->
+  io:format("Unknown message: ~w~n", [Any]),
+  {noreply, State}.
 
 code_change(_Vsn, State, _Extra) ->
   {ok, State}.

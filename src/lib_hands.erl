@@ -3,6 +3,8 @@
 
 score_21([H|Cs]) ->
 	score_21([H], Cs).
+score_21(S, []) ->
+	lists:sum(S);
 score_21(S, [H|Cs]) ->
 	case lists:sum([H|S]) > 21 of
 		true ->
@@ -14,6 +16,4 @@ score_21(S, [H|Cs]) ->
 			end;
 		false ->
 			score_21([H|S], Cs)
-	end;
-score_21(S, []) ->
-	lists:sum(S).
+	end.
