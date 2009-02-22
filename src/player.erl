@@ -26,6 +26,7 @@ bet(Pid, Amount) ->
 	gen_server:cast(Pid, {bet, Amount}).
 
 place_bet(Pid, GamePid) ->
+  error_logger:error_msg("asked to place bet by game pid: ~w\n", [GamePid]),
   gen_server:cast(Pid, {place_bet, GamePid}).
 
 cards(Pid, Cards) ->

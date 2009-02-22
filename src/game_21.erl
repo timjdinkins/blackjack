@@ -9,7 +9,7 @@
          code_change/4]).
 -export([
   start_link/1,
-  stop/1,
+  stop/0,
   betting/2,
   receiving_bets/2,
   dealing/2,
@@ -34,7 +34,7 @@ init(Ps) ->
 betting(timeout, {Players, DeckPid}) ->
   error_logger:error_msg("betting:  notifying players\n"),
 	lists:foreach(fun({P, _V}) -> player:place_bet(P, self()) end, dict:to_list(Players)),
-	TimeoutPid = gen_fsm:send_event_after(3000, end_betting),
+	TimeoutPid = gen_fsm:send_event_after(30000, end_betting),
 	{next_state, receiving_bets, {[], Players, DeckPid, TimeoutPid}}.
 
 receiving_bets({bet, Pid, Amount}, {Received, Players, DeckPid, TimeoutPid}) ->
